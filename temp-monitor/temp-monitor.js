@@ -1,11 +1,12 @@
-let temp, message;
+let temp, average;
 let on = false;
+let lastFiveTemps = [];
 
 const print = () => {};
 
-const blinkDuration = 200;
-const tooHot = 77;
-const tooCold = 76;
+const blinkDuration = 1000;
+const tooHot = 72;
+const tooCold = 65;
 
 function blink(LED) {
   LED.write(false);
@@ -17,14 +18,22 @@ function blink(LED) {
 
 function checkTemp() {
   temp = E.getTemperature() * 9/5 + 32;
-  if (temp >= tooHot) {
+  if (lastFiveTemps.length === 5) {
+    lastFiveTemps.shift();
+  }
+  lastFiveTemps.push(temp);
+  
+  average = lastFiveTemps.reduce((a, b) => a + b) / lastFiveTemps.length;
+  
+  if (average >= tooHot) {
     blink(LED1);
-  } else if (temp <= tooCold) {
+  } else if (average <= tooCold) {
     blink(LED3);
   } else {
     blink(LED2);
   }
-  print('Temp is ' + temp);
+  print(lastFiveTemps);
+  print('Temp average is ' + average);
 }
 
 setInterval(() => {
